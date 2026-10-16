@@ -38,6 +38,7 @@ POOL_ROWS = [
     ("random_forest_n50_lNone", "Random forest, 50 unrestricted trees"),
     ("lightgbm_n50_l32", r"LightGBM, $50\times32$"),
     ("lightgbm_n200_l32", r"LightGBM, $200\times32$"),
+    ("random_forest_n100_lNone_bal", "Random forest, 100 unrestricted trees"),
     ("random_forest_n100_lNone_unw", "Random forest, 100 unrestricted trees, unweighted"),
     (r"lightgbm_n\d+_l\d+_tuned_f1", "LightGBM, tuned for macro-F1"),
 ]
@@ -102,7 +103,7 @@ def datasets_table(cfg, out: Path) -> None:
 
     def dup(m, k):
         within, read = m["loading"]["duplicates_within_chunks"], m["loading"]["rows_read"]
-        return f"{fmt_int(within + m['cleaning']['exact_duplicates'])} ({100 * within / read:.1f}\\%)"
+        return f"{fmt_int(within)} ({100 * within / read:.1f}\\%)"
 
     def benign_share(m, k):
         c = m["class_counts"]["train"]
@@ -110,9 +111,13 @@ def datasets_table(cfg, out: Path) -> None:
 
     rows = [
         ("Records read", lambda m, k: fmt_int(m["loading"]["rows_read"])),
-        ("Exact duplicates (share)", dup),
-        ("After per-class sampling", lambda m, k: fmt_int(m["loading"]["rows_kept"]) if m["loading"]["rows_kept"] < m["loading"]["rows_read"] - m["loading"]["duplicates_within_chunks"] else "no sampling"),
-        ("Contradictory labels", lambda m, k: fmt_int(m["cleaning"]["conflicting_rows"])),
+        ("$-$ duplicates within a file (share)", dup),
+        ("After per-class sampling", lambda m, k: fmt_int(m["loading"]["rows_kept"]) + (
+            "" if m["loading"]["rows_kept"] < m["loading"]["rows_read"] - m["loading"]["duplicates_within_chunks"]
+            else " (none)")),
+        ("$-$ duplicates across files", lambda m, k: fmt_int(m["cleaning"]["exact_duplicates"])),
+        ("$-$ non-finite records", lambda m, k: fmt_int(m["cleaning"]["nonfinite_rows"])),
+        ("$-$ contradictory labels", lambda m, k: fmt_int(m["cleaning"]["conflicting_rows"])),
         ("Final records", lambda m, k: f"\\textbf{{{fmt_int(m['cleaning']['rows_out'])}}}"),
         ("Train / val. / test", lambda m, k: "/".join(fmt_int(sum(m["class_counts"][s].values())) for s in ("train", "val", "test"))),
         ("Classes (minority)", lambda m, k: f"{len(m['classes'])} ({len(m['minority'])})"),
@@ -121,8 +126,10 @@ def datasets_table(cfg, out: Path) -> None:
     ]
     head = "Quantity & " + " & ".join(cfg.datasets[k].label for k in keys) + " \\\\"
     body = [f"{name} & {cell(fn)} \\\\" for name, fn in rows]
-    table(out, "Datasets after cleaning. Duplicates are exact copies of a record (all features and the label); "
-               "contradictory labels are records whose features are identical but whose labels differ.",
+    table(out, "Datasets after cleaning, with every removal in processing order. Duplicates are exact copies of a "
+               "record (all features and the label), removed within each file as it is read and then across files; "
+               "contradictory labels are records whose features are identical but whose labels differ. CIC IIoT 2025 "
+               "is read as one file and is not sampled.",
           "tab:datasets", "@{}l" + "r" * len(keys) + "@{}", head, body)
 
 
@@ -272,7 +279,7 @@ def fronts_figure(cfg, out: Path) -> None:
 
 def design_table(cfg, out: Path) -> None:
     rows = [("Thresholds: one global value", "joint", "nsga2_global"),
-            ("Thresholds: one per attack category (default)", "joint", "nsga2_category"),
+            ("Thresholds: one per category (default)", "joint", "nsga2_category"),
             ("Thresholds: one per class", "joint", "nsga2_class"),
             ("Escalation score: margin instead of confidence", "margin", "nsga2_category"),
             ("Objectives: without minority recall", "three_objectives", "nsga2_category"),
@@ -517,7 +524,7 @@ OP_PROFILE = "system_ble"
 OP_SCENARIOS = [("battery", "Battery-critical"), ("low_false_alarms", "Low false alarms"),
                 ("rare_attacks", "Rare attacks"), ("balanced", "Balanced"),
                 ("strict_false_alarms", "Strict false alarms"), ("secure_budget", "Secure on a budget")]
-OP_METHODS = [("single_model", "Single detector"), ("gateway_server_c2t", "Fixed two-tier (C2T)"),
+OP_METHODS = [("single_model", "Single detector"), ("gateway_server_c2t", "Fixed two-tier (C2T-style)"),
               ("tuned_two_tier", "Tuned two-tier"), ("greedy", "Greedy search"), ("joint_nsga2", "Joint optimisation")]
 
 
@@ -675,6 +682,29 @@ def describe(name: str) -> str:
     return ", ".join(parts)
 
 
+def strong_baselines_table(cfg, out: Path) -> None:
+    """Joint optimisation against the tuned two-tier cascade and greedy search (experiments/strong_baselines.py)."""
+    keys = list(cfg.datasets)
+    runs = {k: run_csv(cfg.datasets[k].strong_baselines, "summary.csv") for k in keys}
+    methods = [("tuned_two_tier", "Tuned two-tier"), ("greedy", "Greedy search"), ("nsga2_category", "Joint")]
+    head = ("$t$ & " + " & ".join(f"\\multicolumn{{3}}{{c}}{{{cfg.datasets[k].label}}}" for k in keys) + " \\\\\n"
+            + " ".join(f"\\cmidrule(lr){{{2 + 3 * i}-{4 + 3 * i}}}" for i in range(len(keys))) + "\n"
+            + " & " + " & ".join(" & ".join(lab for _, lab in methods) for _ in keys) + " \\\\")
+    body = []
+    for tx in sorted(runs[keys[0]].tx.unique()):
+        cells = []
+        for k in keys:
+            g = runs[k][runs[k].tx == tx].groupby("method").hv_log_cost.agg(["mean", "std"])
+            cells += [f"\\textbf{{{pm(g.loc[m, 'mean'], g.loc[m, 'std'])}}}" if m == "nsga2_category"
+                      else pm(g.loc[m, "mean"], g.loc[m, "std"]) for m, _ in methods]
+        body.append(f"{fmt_int(tx)} & " + " & ".join(cells) + " \\\\")
+    table(out, "Joint optimisation against stronger baselines: hypervolume (log cost, test split, mean $\\pm$ std over "
+               "three seeds) against the transmission cost $t$ per hop. Tuned two-tier: every device detector followed by "
+               "the best server detector, with a global threshold tuned on validation; greedy search: weighted-Chebyshev "
+               "hill climbing with the same encoding and budget as joint optimisation.",
+          "tab:strong", "@{}r" + "ccc" * len(keys) + "@{}", head, body, wide=True)
+
+
 EVASION_ALPHAS = [0.0, 0.2, 0.5]
 EVASION_DEFENCES = [("searched", 0.0, "None (searched thresholds)"), ("0.9", 0.0, "Benign threshold 0.9"),
                     ("searched", 0.1, "Random audit of 10\\%")]
@@ -785,7 +815,13 @@ def operating_deployment(cost_run: str, scenario: str, method: str, seed: int = 
     pick = op[(op.scenario == scenario) & (op.method == method) & (op.seed == seed)].iloc[0]
     f = run_csv(cost_run, "fronts.csv")
     rows = f[(f.profile == OP_PROFILE) & (f.seed == seed) & (f.method == method) & (f.deployment == pick.deployment)]
-    return rows.iloc[0]
+    # Deployments with the same detectors but different thresholds share a name; the metrics identify the one picked.
+    same = np.ones(len(rows), dtype=bool)
+    for m in ("macro_f1", "fpr", "detection_rate", "mean_cost"):
+        same &= np.isclose(rows[m].to_numpy(), pick[m], rtol=1e-9, atol=1e-12)
+    if not same.any():
+        raise ValueError(f"{method}/{scenario}/seed {seed}: no front row matches the selected deployment")
+    return rows[same].iloc[0]  # several matches are deployments with identical test metrics
 
 
 def cascade_predictions(pool_dir: Path, dep: pd.Series) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -996,6 +1032,7 @@ def main() -> None:
     prevalence_table(cfg, T / "prevalence.tex")
     overhead_table(cfg, T / "overhead.tex")
     evasion_table(cfg, T / "evasion.tex")
+    strong_baselines_table(cfg, T / "strong_baselines.tex")
     timing_table(cfg, T / "timing.tex")
     routing_figure(cfg, F / "routing_by_category.pdf")
     scenario_macros(cfg, F / "scenario_numbers.tex")

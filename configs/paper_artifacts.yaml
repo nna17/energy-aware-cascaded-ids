@@ -14,6 +14,7 @@ datasets:
     cost: results/runs/final_cost_ciciot2023/20261016-022902
     replication: results/runs/literature_protocol_ciciot2023/20261015-154209
     evasion: results/runs/evasion_ciciot2023/20261016-165519
+    strong_baselines: results/runs/strong_baselines_ciciot2023/20261016-144807
     energy_baselines: results/runs/energy_baselines_ciciot2023/20261016-173453
   ciciiot2025:
     label: CIC IIoT 2025
@@ -26,6 +27,7 @@ datasets:
     cost: results/runs/final_cost_ciciiot2025/20261016-130631
     replication: results/runs/literature_protocol_ciciiot2025/20261015-153711
     evasion: results/runs/evasion_ciciiot2025/20261016-160312
+    strong_baselines: results/runs/strong_baselines_ciciiot2025/20261016-144235
     energy_baselines: results/runs/energy_baselines_ciciiot2025/20261016-173412
 # Single-dataset studies
 search_study: results/runs/search_study/20261015-004918          # CIC-IoT2023, 34-model pool
