@@ -460,10 +460,9 @@ def budget_table(cfg, out: Path) -> None:
             for k in keys:
                 r = curves[k][curves[k].budget == b]
                 nseeds = curves[k].seed.nunique()
-                for m in shown:
-                    g = r[r.method == m]
-                    v = f"{g.f1.mean():.3f}" if len(g) == nseeds else "--"
-                    cells.append(f"\\textbf{{{v}}}" if m == "joint_nsga2" and v != "--" else v)
+                vals = [f"{r[r.method == m].f1.mean():.3f}" if (r.method == m).sum() == nseeds else "--" for m in shown]
+                best = max((v for v in vals if v != "--"), key=float, default=None)
+                cells += [f"\\textbf{{{v}}}" if v == best else v for v in vals]
                 j = r[r.method == "joint_nsga2"]
                 gap = ((j.f1 - j.floor_f1) / (j.ref_f1 - j.floor_f1)).mean() if len(j) == nseeds else np.nan
                 cells.append("--" if np.isnan(gap) else f"{100 * gap:.0f}\\%")
@@ -472,7 +471,7 @@ def budget_table(cfg, out: Path) -> None:
                      for k in keys)
     table(out, "Best macro-F1 (test, mean over three seeds) under an energy budget, as a share of the energy of sending "
                "every flow to the best single detector (macro-F1: " + refs + "). Deployments are selected on validation. "
-               "Device: device-only detection; Single: best single detector on any tier; C2T: fixed gateway--server "
+               "Bold: best value in the row for each dataset. Device: device-only detection; Single: best single detector on any tier; C2T: fixed gateway--server "
                "design; Tuned: two-tier cascade with a validation-tuned global threshold; Greedy: greedy search with "
                "the budget of joint optimisation; --: no deployment of that method fits the budget. Gap: share of the macro-F1 gap between "
                "device-only detection and the best detector that joint optimisation recovers.",
