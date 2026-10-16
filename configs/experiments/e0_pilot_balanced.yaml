@@ -1,0 +1,38 @@
+# Variant of e0_pilot: inverse-frequency class weights for teacher, supernet and fixed students.
+# Phase 0 pilot / decision gate 1:
+# do small elastic sub-models keep minority recall better than trees and fixed KD students?
+name: e0_pilot_balanced
+datasets:
+  - configs/data/ciciot2023.yaml
+  - configs/data/edge_iiotset.yaml
+seeds: [0]
+device: auto              # auto | cpu | cuda
+
+teacher:
+  members:                # one member = single teacher; several = ensemble (FT-Transformer dropped: ~10x slower, no gain)
+    - configs/model/teacher_mlp.yaml
+  train: configs/train/teacher_balanced.yaml
+
+supernet:
+  model: configs/model/elastic_mlp.yaml
+  train: configs/train/supernet_balanced.yaml
+  ablation_no_kd: true    # also train baseline B4 (same supernet, CE only)
+
+# Sub-models evaluated after training (after BN recalibration).
+# width_ratio applies to every active block; feature_ratio to the input.
+subnets:
+  - {name: tiny,   depth: 1, width_ratio: 0.125, feature_ratio: 0.25}
+  - {name: small,  depth: 2, width_ratio: 0.25,  feature_ratio: 0.5}
+  - {name: medium, depth: 3, width_ratio: 0.5,   feature_ratio: 0.75}
+  - {name: large,  depth: 4, width_ratio: 1.0,   feature_ratio: 1.0}
+
+# Baseline B2: fixed students with the same shapes as the sub-models above,
+# each trained separately with KD from the same teacher.
+fixed_students: [tiny, small, medium]
+
+# Baseline B7: tree ensembles over a size grid.
+trees:
+  kinds: [lightgbm, xgboost, random_forest]
+  n_estimators: [10, 50, 200]
+  max_leaves: [8, 32, 128]
+  class_weighting: balanced

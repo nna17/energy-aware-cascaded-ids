@@ -1,0 +1,22 @@
+# Is the search algorithm a contribution? Same evaluation budget for every algorithm; results are
+# taken from each algorithm's full archive at several budgets and scored on the test split.
+name: search_study
+pool_dir: results/pools/ciciot2023/seed0
+devices:
+  - {name: mcu, max_size_kb: 64, max_features: 20, cost_per_op: 1.0}
+  - {name: gateway, max_size_kb: 2048, cost_per_op: 1.0}
+  - {name: server, cost_per_op: 1.0}
+granularity: category
+budget: 10000
+checkpoints: [1000, 2000, 5000, 10000]
+pop_size: 100
+search_seeds: [0, 1, 2]
+tx_per_hop: [0, 1000]
+workers: 3
+
+variants:
+  - {algorithm: nsga2, ordered: false}    # as in the first experiments (also reports final population only)
+  - {algorithm: nsga2, ordered: true}
+  - {algorithm: nsga3, ordered: true}
+  - {algorithm: smsemoa, ordered: true}
+  - {algorithm: random, ordered: true}    # ordering does not matter for uniform sampling

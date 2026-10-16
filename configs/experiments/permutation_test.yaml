@@ -1,0 +1,14 @@
+# Does a 1D-CNN use any spatial structure in flow features?
+# Retrain it on shuffled column orders; a small spread means it does not.
+name: permutation_test
+datasets:
+  - configs/data/ciciot2023.yaml
+  - configs/data/edge_iiotset.yaml
+seeds: [0]
+device: auto
+n_permutations: 5
+cnn:
+  channels: [32, 64]
+  kernel_size: 3
+  hidden: 128
+train: configs/train/teacher.yaml

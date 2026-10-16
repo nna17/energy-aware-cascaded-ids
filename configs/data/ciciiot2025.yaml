@@ -1,0 +1,17 @@
+# CIC IIoT 2025 (DataSense, Firouzi et al.): per-device time-window samples, network + telemetry features.
+# Files: <root>/attack_samples_<w>sec.csv and benign_samples_<w>sec.csv (Kaggle CSV mirror of the CIC release).
+dataset: ciciiot2025
+root: data/raw/ciciiot2025
+processed_dir: data/processed/ciciiot2025
+window_seconds: 1
+
+max_files: null
+max_rows_per_class: null      # small dataset: keep everything
+extra_leaky_columns: []
+drop_conflicting_duplicates: true
+
+label_level: fine
+split: {train: 0.7, val: 0.1, test: 0.2}
+minority_threshold: 0.01
+scaler: quantile
+seed: 0

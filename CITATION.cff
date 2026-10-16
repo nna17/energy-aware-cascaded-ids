@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the paper below."
+title: "Energy-aware cascaded intrusion detection for IoT-edge networks (code)"
+type: software
+license: MIT
+authors:
+  - family-names: Nouri
+    given-names: Nabil Abdelkader
+    email: nabil.nouri@gmail.com
+    affiliation: "Computer Science and Applied Artificial Intelligence Laboratory (CSAAIL), University of Djelfa"
+  - family-names: Naouri
+    given-names: Abdenacer
+    affiliation: "Department of Computer Science, Southwest Jiaotong University"
+  - family-names: Naouri
+    given-names: Salim
+    affiliation: "Department of Computer Science, Southwest Jiaotong University"
+  - family-names: Hassak
+    given-names: Ali Soufiane
+    affiliation: "Computer Science and Applied Artificial Intelligence Laboratory (CSAAIL), University of Djelfa"
+preferred-citation:
+  type: article
+  title: "Energy-Aware Multi-Objective Design of Cascaded Intrusion Detection Systems for IoT-Edge Networks"
+  authors:
+    - family-names: Nouri
+      given-names: Nabil Abdelkader
+    - family-names: Naouri
+      given-names: Abdenacer
+    - family-names: Naouri
+      given-names: Salim
+    - family-names: Hassak
+      given-names: Ali Soufiane
+  year: 2026
+  notes: "Under review."

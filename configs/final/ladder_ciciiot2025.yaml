@@ -1,0 +1,27 @@
+name: final_ladder_ciciiot2025
+pool_dir: results/pools_v2/ciciiot2025/seed{seed}
+devices:
+- name: mcu
+  max_size_kb: 64
+  max_features: 20
+  cost_per_op: 1.0
+- name: gateway
+  max_size_kb: 2048
+  cost_per_op: 1.0
+- name: server
+  cost_per_op: 1.0
+granularity: category
+budget: 10000
+pop_size: 100
+search_seeds:
+- 0
+- 1
+- 2
+tx_per_hop:
+- 0
+- 100
+- 1000
+- 10000
+fixed_threshold: 0.8
+workers: 3
+seed_singles: true

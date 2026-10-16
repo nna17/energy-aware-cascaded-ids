@@ -1,0 +1,19 @@
+# Is escalation worth it? A cheap tier-1 model decides confident flows locally and escalates the rest.
+# Thresholds are set on the validation split for target escalation rates; metrics are on the test split.
+name: cascade_feasibility
+dataset: configs/data/ciciot2023.yaml
+seed: 0
+balanced: true
+
+# Tier-1 candidates (device). n_features = only the first k ranked features are extracted.
+tier1:
+  - {kind: decision_tree, n_estimators: 1, max_leaves: 64, n_features: 10}
+  - {kind: decision_tree, n_estimators: 1, max_leaves: 256, n_features: 20}
+  - {kind: random_forest, n_estimators: 10, max_leaves: 128}
+# Tier 2 (gateway) and tier 3 (edge server): from the pilot, a strong cheap forest and a large booster.
+tier2: {kind: random_forest, n_estimators: 50, max_leaves: 128}
+tier3: {kind: lightgbm, n_estimators: 200, max_leaves: 32}
+
+# Fraction of flows escalated by tier 1, and (3-tier) fraction of tier-2 flows escalated again.
+tier1_rates: [0.0, 0.05, 0.1, 0.2, 0.3, 0.5]
+tier2_rates: [0.25, 0.5]

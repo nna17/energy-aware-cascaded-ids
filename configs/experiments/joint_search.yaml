@@ -1,0 +1,21 @@
+# A2-A5: joint search over deployments vs baselines, from a candidate pool (see pool.yaml).
+name: joint_search
+pool_dir: results/pools/ciciot2023/seed{seed}
+seeds: [0]
+
+# Device tiers. Budgets decide which pool models a tier may run. cost_per_op converts ops to cost
+# units; all 1.0 until Phase B replaces them with measured energy per op on each device.
+devices:
+  - {name: mcu, max_size_kb: 64, max_features: 20, cost_per_op: 1.0}
+  - {name: gateway, max_size_kb: 2048, cost_per_op: 1.0}
+  - {name: server, cost_per_op: 1.0}
+tx_cost_per_hop: [0, 0]     # cost per flow sent mcu->gateway, gateway->server (same units as ops)
+
+# Search: every method gets the same evaluation budget; results are the non-dominated deployments of
+# the full archive. Algorithm chosen by the search study (search_study.yaml): nsga2 | nsga3 | smsemoa.
+search: {algorithm: nsga2, ordered: true, budget: 10000, pop_size: 100}
+granularities: [global, category, class]   # escalation-threshold granularity (A2 ablation)
+random_search_granularity: category        # same evaluation budget as one NSGA-II run
+
+# A5: transmission cost per hop, in op-equivalents (category granularity).
+tx_sweep: [0, 100, 1000, 10000]

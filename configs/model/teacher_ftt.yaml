@@ -1,0 +1,6 @@
+kind: ft_transformer
+d_token: 64
+n_blocks: 3
+n_heads: 8
+ffn_factor: 2.0
+dropout: 0.1

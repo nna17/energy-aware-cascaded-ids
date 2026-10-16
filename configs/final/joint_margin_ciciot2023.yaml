@@ -1,0 +1,30 @@
+name: final_joint_margin_ciciot2023
+pool_dir: results/pools_v2/ciciot2023/seed{seed}
+seeds:
+- 0
+- 1
+- 2
+devices:
+- name: mcu
+  max_size_kb: 64
+  max_features: 20
+  cost_per_op: 1.0
+- name: gateway
+  max_size_kb: 2048
+  cost_per_op: 1.0
+- name: server
+  cost_per_op: 1.0
+tx_cost_per_hop:
+- 0
+- 0
+search:
+  algorithm: nsga2
+  ordered: true
+  budget: 10000
+  pop_size: 100
+  seed_singles: true
+granularities:
+- category
+random_search_granularity: category
+tx_sweep: []
+score: margin

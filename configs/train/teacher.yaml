@@ -1,0 +1,9 @@
+epochs: 30
+batch_size: 1024
+lr: 0.001
+weight_decay: 0.0001
+loss: focal              # ce | focal
+focal_gamma: 2.0
+class_weighting: effective_number  # none | inverse_frequency | effective_number
+class_weight_beta: 0.999
+patience: 5              # early stopping on validation macro-F1

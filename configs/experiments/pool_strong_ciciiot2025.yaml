@@ -1,0 +1,43 @@
+name: pool_strong_ciciiot2025
+dataset: configs/data/ciciiot2025.yaml
+seeds:
+- 0
+- 1
+- 2
+balanced: true
+out_dir: results/pools_v2
+models:
+- kind: lightgbm
+  n_estimators:
+  - 309
+  max_leaves:
+  - 25
+  learning_rate: 0.02805
+  min_child_samples: 75
+  colsample_bytree: 0.8537
+  balanced: false
+  tag: tuned_f1
+- kind: lightgbm
+  n_estimators:
+  - 765
+  max_leaves:
+  - 26
+  learning_rate: 0.03096
+  min_child_samples: 34
+  colsample_bytree: 0.6266
+  balanced: true
+  tag: tuned_minrec
+- kind: random_forest
+  n_estimators:
+  - 100
+  max_leaves:
+  - null
+  balanced: false
+  tag: unw
+- kind: random_forest
+  n_estimators:
+  - 100
+  max_leaves:
+  - null
+  balanced: true
+  tag: bal

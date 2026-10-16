@@ -1,0 +1,19 @@
+# CIC IIoT 2025 with a device split (generalisation check; see configs/data/ciciiot2025.yaml for the main protocol).
+# Files: <root>/attack_samples_<w>sec.csv and benign_samples_<w>sec.csv (Kaggle CSV mirror of the CIC release).
+dataset: ciciiot2025
+root: data/raw/ciciiot2025
+processed_dir: data/processed/ciciiot2025_device
+window_seconds: 1
+
+max_files: null
+max_rows_per_class: null      # small dataset: keep everything
+extra_leaky_columns: []
+drop_conflicting_duplicates: true
+
+label_level: fine
+split: {train: 0.7, val: 0.1, test: 0.2}
+split_mode: device
+keep_meta: true
+minority_threshold: 0.01
+scaler: quantile
+seed: 0

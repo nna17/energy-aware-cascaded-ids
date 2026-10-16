@@ -1,0 +1,18 @@
+# Synthetic imbalanced data for smoke tests and debugging the pipeline.
+dataset: synthetic
+root: null
+processed_dir: data/processed/synthetic
+n_samples: 20000
+n_features: 30
+n_classes: 6
+
+max_files: null
+max_rows_per_class: null
+extra_leaky_columns: []
+drop_conflicting_duplicates: true
+
+label_level: fine
+split: {train: 0.7, val: 0.1, test: 0.2}
+minority_threshold: 0.03
+scaler: standard
+seed: 0

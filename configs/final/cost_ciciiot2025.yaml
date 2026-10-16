@@ -1,0 +1,64 @@
+name: final_cost_ciciiot2025
+pool_dir: results/pools_v2/ciciiot2025/seed{seed}
+granularity: category
+budget: 10000
+pop_size: 100
+search_seeds:
+- 0
+- 1
+- 2
+workers: 3
+budgets:
+  mcu:
+    max_size_kb: 64
+    max_features: 20
+  gateway:
+    max_size_kb: 2048
+  server: {}
+op_nj:
+  mcu: 4.8
+  gateway: 13.4
+  server: 44.0
+radio_nj:
+  wifi: 15000
+  ble: 400000
+  ieee802154: 970000
+backhaul_nj: 15000
+# 71 features of 4 bytes plus headers: about 300 bytes per flow record, 1.5 times the 200-byte reference record
+record_scale: 1.5
+profiles:
+- name: system_wifi
+  perspective: system
+  radio: wifi
+- name: system_ble
+  perspective: system
+  radio: ble
+- name: system_802154
+  perspective: system
+  radio: ieee802154
+- name: device_wifi
+  perspective: device
+  radio: wifi
+- name: device_ble
+  perspective: device
+  radio: ble
+- name: device_802154
+  perspective: device
+  radio: ieee802154
+- name: system_ble_compute_x0.1
+  perspective: system
+  radio: ble
+  compute_scale: 0.1
+- name: system_ble_compute_x10
+  perspective: system
+  radio: ble
+  compute_scale: 10
+- name: system_ble_radio_x0.1
+  perspective: system
+  radio: ble
+  radio_scale: 0.1
+- name: system_ble_radio_x10
+  perspective: system
+  radio: ble
+  radio_scale: 10
+seed_singles: true

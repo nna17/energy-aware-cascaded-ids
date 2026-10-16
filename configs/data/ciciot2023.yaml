@@ -1,0 +1,23 @@
+# CIC-IoT2023 (Neto et al., 2023). Point `root` at the folder holding the CSV parts.
+dataset: ciciot2023
+root: data/raw/ciciot2023
+processed_dir: data/processed/ciciot2023_fullbenign
+
+# MERGED_CSV release: 63 files x ~712k rows, all 34 classes in every file.
+# For the pilot, read a subset of files and keep a uniform random sample of at most
+# max_rows_per_class rows per class (files are deduplicated as they stream in, so memory stays bounded).
+# Rare classes (20-80 rows per file) are never capped.
+max_files: 20            # null = all files
+max_rows_per_class: 50000   # null = no cap
+# Never capped: capping benign left it at ~5% of training data and pushed the
+# benign false-positive rate to 40-60% (pilot runs of 2026-10-14).
+uncapped_classes: [BENIGN]
+
+extra_leaky_columns: []  # add columns here if an audit shows they leak the label
+drop_conflicting_duplicates: true
+
+label_level: fine        # binary | category | fine
+split: {train: 0.7, val: 0.1, test: 0.2}
+minority_threshold: 0.01 # classes below this share of the training set
+scaler: quantile         # standard | robust | quantile
+seed: 0

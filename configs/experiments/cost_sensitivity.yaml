@@ -1,0 +1,39 @@
+# Cost-sensitivity analysis with model-based energy profiles (nJ per flow). No hardware was measured;
+# every unit cost comes from a published source (see paper/refs.bib and the table in the paper).
+#
+# Per-operation energy = cycles per tree-node evaluation (~12.5, estimated from Cortex-M4 instruction
+# timings: 10-15 cycles) x energy per cycle:
+#   device  STM32L476 (Cortex-M4): 10.2 mA x 3 V / 80 MHz = 0.3825 nJ/cycle  -> 4.8 nJ/op   [ST datasheet]
+#   gateway Raspberry Pi 4: 6.4 W / (4 x 1.5 GHz) = 1.07 nJ/cycle             -> 13.4 nJ/op  [pidramble, RPi datasheet]
+#   server  Xeon Silver 4314: 135 W / (16 x 2.4 GHz) = 3.5 nJ/cycle (TDP bound) -> 44 nJ/op  [Intel ARK]
+# Transmission of one flow record (~200 B: 39 features x 4 B + headers), device -> gateway:
+#   wifi   ESP32 802.11n MCS7, 594 mW / 65 Mbps = 9.1 nJ/bit, airtime only (lower bound)  -> 15,000 nJ  [ESP32 datasheet]
+#   ble    CC2540, 8 frames incl. wake-up/IFS/MCU (Siekkinen et al. 2012)               -> 400,000 nJ (383-432 uJ)
+#   154    CC2530, 2 frames + ACK (Siekkinen et al. 2012)                               -> 970,000 nJ (0.87-1.07 mJ)
+# Gateway -> server hop: Wi-Fi/Ethernet lower bound, 15,000 nJ.
+name: cost_sensitivity
+pool_dir: results/pools/ciciot2023/seed0
+granularity: category
+budget: 10000
+pop_size: 100
+search_seeds: [0]
+workers: 3
+budgets: {mcu: {max_size_kb: 64, max_features: 20}, gateway: {max_size_kb: 2048}, server: {}}
+
+op_nj: {mcu: 4.8, gateway: 13.4, server: 44.0}
+radio_nj: {wifi: 15000, ble: 400000, ieee802154: 970000}
+backhaul_nj: 15000
+
+# Each profile: perspective (system = all tiers and hops; device = only device computation and its own
+# transmission), radio for the device hop, and scale factors for robustness.
+profiles:
+  - {name: system_wifi, perspective: system, radio: wifi}
+  - {name: system_ble, perspective: system, radio: ble}
+  - {name: system_802154, perspective: system, radio: ieee802154}
+  - {name: device_wifi, perspective: device, radio: wifi}
+  - {name: device_ble, perspective: device, radio: ble}
+  - {name: device_802154, perspective: device, radio: ieee802154}
+  - {name: system_ble_compute_x0.1, perspective: system, radio: ble, compute_scale: 0.1}
+  - {name: system_ble_compute_x10, perspective: system, radio: ble, compute_scale: 10}
+  - {name: system_ble_radio_x0.1, perspective: system, radio: ble, radio_scale: 0.1}
+  - {name: system_ble_radio_x10, perspective: system, radio: ble, radio_scale: 10}

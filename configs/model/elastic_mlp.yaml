@@ -1,0 +1,8 @@
+# Supernet = largest sub-model. Sub-models take the first units of each layer,
+# the first blocks, and the first (most important) input features.
+max_widths: [256, 256, 128, 128]
+width_ratios: [0.125, 0.25, 0.5, 0.75, 1.0]
+depths: [1, 2, 3, 4]
+feature_ratios: [0.25, 0.5, 0.75, 1.0]
+bits: [32]               # INT8 comes with QAT in Phase 1
+dropout: 0.0

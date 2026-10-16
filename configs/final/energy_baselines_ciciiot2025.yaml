@@ -1,0 +1,38 @@
+name: energy_baselines_ciciiot2025
+pool_dir: results/pools_v2/ciciiot2025/seed{seed}
+granularity: category
+budget: 10000
+pop_size: 100
+search_seeds:
+- 0
+- 1
+- 2
+workers: 3
+budgets:
+  mcu:
+    max_size_kb: 64
+    max_features: 20
+  gateway:
+    max_size_kb: 2048
+  server: {}
+op_nj:
+  mcu: 4.8
+  gateway: 13.4
+  server: 44.0
+radio_nj:
+  wifi: 15000
+  ble: 400000
+  ieee802154: 970000
+backhaul_nj: 15000
+record_scale: 1.5
+profiles:
+- name: system_ble
+  perspective: system
+  radio: ble
+- name: device_ble
+  perspective: device
+  radio: ble
+seed_singles: true
+methods:
+- tuned_two_tier
+- greedy

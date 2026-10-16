@@ -1,0 +1,15 @@
+# Fair-baseline ablation ladder: every variant uses the same three tiers and the same detector pool,
+# so differences isolate what each design decision adds (reviewer request, 2026-10-15).
+name: ablation_ladder
+pool_dir: results/pools/ciciot2023/seed0
+devices:
+  - {name: mcu, max_size_kb: 64, max_features: 20, cost_per_op: 1.0}
+  - {name: gateway, max_size_kb: 2048, cost_per_op: 1.0}
+  - {name: server, cost_per_op: 1.0}
+granularity: category
+budget: 10000
+pop_size: 100
+search_seeds: [0, 1, 2]
+tx_per_hop: [0, 100, 1000, 10000]
+fixed_threshold: 0.8      # variant C: thresholds not optimised
+workers: 3

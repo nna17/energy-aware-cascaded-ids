@@ -1,0 +1,21 @@
+# Edge-IIoTset (Ferrag et al., 2022). Point `root` at the folder holding
+# DNN-EdgeIIoT-dataset.csv (or ML-EdgeIIoT-dataset.csv).
+dataset: edge_iiotset
+root: data/raw/edge_iiotset
+processed_dir: data/processed/edge_iiotset
+file_name: DNN-EdgeIIoT-dataset.csv
+
+max_files: null
+max_rows_per_class: null
+
+# Beyond the usual drop list (in the adapter): per-capture counters and checksums identify a session,
+# not attack behaviour. tcp.ack ranked as the single most important feature before they were dropped.
+extra_leaky_columns: [tcp.ack, tcp.ack_raw, tcp.seq, tcp.checksum, icmp.checksum, icmp.seq_le,
+                      udp.stream, mbtcp.trans_id]
+drop_conflicting_duplicates: true
+
+label_level: fine
+split: {train: 0.7, val: 0.1, test: 0.2}
+minority_threshold: 0.01
+scaler: quantile
+seed: 0

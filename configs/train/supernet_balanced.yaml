@@ -1,0 +1,19 @@
+epochs: 40
+batch_size: 1024
+lr: 0.002
+weight_decay: 0.0001
+patience: 8
+
+# Sandwich rule: each step trains the largest, the smallest and n_random sub-models.
+n_random: 2
+inplace_distillation: true   # smaller sub-models also learn from the largest one
+
+# Loss = alpha * CE + (1 - alpha) * T^2 * KL(teacher || student)
+use_kd: true                 # false = baseline B4 (no distillation)
+alpha: 0.5
+temperature: 2.0   # T=4 + alpha=0.3 hurt small sub-models in the pilot
+class_weighting: inverse_frequency
+class_weight_beta: 0.999
+minority_kd_weighting: true  # weight the KD term per sample by its class weight
+
+bn_recalib_batches: 50

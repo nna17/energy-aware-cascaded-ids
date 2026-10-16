@@ -1,0 +1,36 @@
+# Which experiment run feeds each generated table and figure of the paper.
+# After new runs, update the run folders here and re-run:
+#   python scripts/make_paper_artifacts.py --config configs/paper_artifacts.yaml
+paper_dir: ../paper
+datasets:
+  ciciot2023:
+    label: CIC-IoT2023
+    processed: data/processed/ciciot2023_fullbenign/fine
+    pool: results/pools_v2/ciciot2023/seed0
+    joint: results/runs/final_joint_ciciot2023/20261015-230351
+    margin: results/runs/final_joint_margin_ciciot2023/20261016-032729
+    three_objectives: results/runs/final_joint_3obj_ciciot2023/20261016-034934
+    ladder: results/runs/final_ladder_ciciot2023/20261016-012228
+    cost: results/runs/final_cost_ciciot2023/20261016-022902
+    replication: results/runs/literature_protocol_ciciot2023/20261015-154209
+    evasion: results/runs/evasion_ciciot2023/20261016-165519
+    energy_baselines: results/runs/energy_baselines_ciciot2023/20261016-173453
+  ciciiot2025:
+    label: CIC IIoT 2025
+    processed: data/processed/ciciiot2025/fine
+    pool: results/pools_v2/ciciiot2025/seed0
+    joint: results/runs/final_joint_ciciiot2025/20261015-171219
+    margin: results/runs/final_joint_margin_ciciiot2025/20261016-032439
+    three_objectives: results/runs/final_joint_3obj_ciciiot2025/20261016-032608
+    ladder: results/runs/final_ladder_ciciiot2025/20261015-172024
+    cost: results/runs/final_cost_ciciiot2025/20261016-130631
+    replication: results/runs/literature_protocol_ciciiot2025/20261015-153711
+    evasion: results/runs/evasion_ciciiot2025/20261016-160312
+    energy_baselines: results/runs/energy_baselines_ciciiot2025/20261016-173412
+# Single-dataset studies
+search_study: results/runs/search_study/20261015-004918          # CIC-IoT2023, 34-model pool
+timing: results/runs/timing                                      # experiments/timing.py, both datasets
+scenario_dataset: ciciiot2025                                   # dataset of the deployment-example figure
+edge_audit: results/runs/edge_leakage_audit/20261015-153228
+escalation_diagnostics: results/runs/escalation_diagnostics/20261015-020653
+confidence_figure_dataset: ciciot2023
